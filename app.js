@@ -16,6 +16,41 @@ app.get('/', async(req, res) => {
      res.send('Patrick Anjos da Rocha');
 })
 
+// Private Route
+app.get('/user/:id', checkToken, async(req, res) => {
+    const id = req.params.id
+
+    // Check if user exists 
+    const user = await User.findById(id, '-password') // remove password url
+
+    if (!user) {
+        return res.status(404).json({msg: 'Usuário não encontrado!'})
+    }
+
+    res.status(200).json({ user })
+})
+
+// Check Token
+function checkToken(req, res, next) {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(" ")[1]
+
+    if (!token) {
+        return res.status(401).json({msg: 'Acesso Negado!'})
+    }
+
+    try {
+        const secret = process.env.SECRET
+
+        jwt.verify(token, secret)
+
+        next();
+
+    } catch (error) {
+        res.status(400).json({msg: 'Token inválido!'})
+    }
+}   
+
 // CREATE USER
 app.post('/auth/register', async (req, res) => {
     const { name, login, email, password, confirmPassword } = req.body
@@ -71,9 +106,17 @@ app.post('/auth/register', async (req, res) => {
     }
 })
 
-// Sign In User
+// Delete user
+app.delete('/auth/delete/:id', async (req, res) => {
+    User.deleteOne({_id: req.params.id}, (err) => {
+        if (err) return res.status(400).json({msg: 'Não foi possível deletar usuário!'})
+            return res.json({msg: 'Usuário deletado com sucesso!'})
+    })
+})
 
-app.post('/auth/signin', async (req, res)=> {
+
+// Sign In User
+app.post('/auth/signin', async (req, res) => {
     const { login, password } = req.body
 
     if (!login) {
@@ -85,7 +128,6 @@ app.post('/auth/signin', async (req, res)=> {
     }
 
     // Check if user exists 
-
     const user = await User.findOne({login: login}) // verify login 
 
     if (!user) {
