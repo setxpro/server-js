@@ -33,16 +33,16 @@ app.post('/auth/register', async (req, res) => {
     if (!password) {
         return res.status(422).json({ msg: 'A senha é obrigatória!' })
     }
-    if (!naconfirmPasswordme) {
+    if (!confirmPassword) {
         return res.status(422).json({ msg: 'Insira novamente a senha!' })
     }
-    if (password !== naconfirmPasswordme) {
+    if (password !== confirmPassword) {
         return res.status(422).json({ msg: 'As senhas não são iguais!' })
     }
 
     // Check if user exists
     const userEmailExists = await User.findOne({email: email})
-    if (userExists) {
+    if (userEmailExists) {
         return res.status(422).json({ msg: 'Por favor, utilize outro email!' })
     }
     const userLoginExists = await User.findOne({login: login})
