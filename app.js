@@ -12,7 +12,7 @@ const port = process.env.PORT || 9000
 app.use(cors())
 
 app.get('/', async(req, res) => {
-    await res.send('Patrick Anjos');
+     res.send('Patrick Anjos da Rocha');
 })
 
 app.listen(port)
