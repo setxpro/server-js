@@ -43,11 +43,11 @@ app.post('/auth/register', async (req, res) => {
     // Check if user exists
     const userEmailExists = await User.findOne({email: email})
     if (userEmailExists) {
-        return res.status(422).json({ msg: 'Por favor, utilize outro email!' })
+        return res.status(422).json({ msg: 'Usuário já cadastrado!' })
     }
     const userLoginExists = await User.findOne({login: login})
     if (userLoginExists) {
-        return res.status(422).json({ msg: 'Por favor, utilize outro Login!' })
+        return res.status(422).json({ msg: 'Login já cadastrado!' })
     }
 
     // Create Password
@@ -69,6 +69,52 @@ app.post('/auth/register', async (req, res) => {
         console.log(error)
         res.status(500).json({msg: 'Erro com o servidor, tente novamente mais tarde!'})
     }
+})
+
+// Sign In User
+
+app.post('/auth/signin', async (req, res)=> {
+    const { login, password } = req.body
+
+    if (!login) {
+        return res.status(422).json({ msg: 'Insira ao menos um login!' })
+    }
+
+    if (!password) {
+        return res.status(422).json({ msg: 'Insira ao menos uma Senha!' })
+    }
+
+    // Check if user exists 
+
+    const user = await User.findOne({login: login}) // verify login 
+
+    if (!user) {
+        return res.status(404).json({ msg: 'Usuário não encontrado!' })
+    }
+
+    // Check if password match
+    const checkPass = await bcrypt.compare(password, user.password)
+
+    if (!checkPass) {
+        return res.status(422).json({ msg: 'Senha inválida!' })
+    }
+
+    try {
+        const secret = process.env.SECRET
+
+        const token = jwt.sign(
+            {
+                id: user._id,
+            },
+            secret
+        )
+        res.status(200).json({msg: 'Authenticação realizada com sucesso!', token})
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({msg: 'Erro com o servidor, tente novamente mais tarde!'})
+    }
+
 })
 
 // Connection with database
