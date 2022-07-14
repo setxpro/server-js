@@ -1,0 +1,11 @@
+{
+  "name": "sistema-de-login",
+  "version": "1.0.0",
+  "description": "Sistema de login com NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Patrick Anjos",
+  "license": "MIT"
+}
